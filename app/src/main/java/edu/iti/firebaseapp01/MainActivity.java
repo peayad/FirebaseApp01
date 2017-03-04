@@ -13,6 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -27,6 +31,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,10 +40,14 @@ public class MainActivity extends AppCompatActivity {
     final static int RC_SIGN_IN = 1;
 
     public ProgressDialog mProgressDialog;
+    InterstitialAd mInterstitialAd;
 
     FirebaseAnalytics fb;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
+    FirebaseRemoteConfig mFirebaseRemoteConfig;
+    AdView mAdView;
+    boolean fullscreen;
 
     GoogleApiClient mGoogleApiClient;
 
@@ -85,22 +95,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loginBtn = (Button) findViewById(R.id.emailLogInBtn);
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String email = ((EditText) findViewById(R.id.emailET)).getText().toString();
-                String password = ((EditText) findViewById(R.id.passET)).getText().toString();
-                if (!email.equals("") && !password.equals("")){
-                    showProgressDialog();
-                    signinEmail(email, password);
-                }
-
-            }
-        });
-
-
         // signin with google
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -125,6 +119,85 @@ public class MainActivity extends AppCompatActivity {
                 googleSignIn();
             }
         });
+
+        loginBtn = (Button) findViewById(R.id.emailLogInBtn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (fullscreen && mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    String email = ((EditText) findViewById(R.id.emailET)).getText().toString();
+                    String password = ((EditText) findViewById(R.id.passET)).getText().toString();
+                    if (!email.equals("") && !password.equals("")) {
+                        showProgressDialog();
+                        signinEmail(email, password);
+                    }
+                }
+
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        FirebaseRemoteConfigSettings configSettings =
+                new FirebaseRemoteConfigSettings.Builder()
+                        .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                        .build();
+
+        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        mFirebaseRemoteConfig.setConfigSettings(configSettings);
+        mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
+
+
+        mFirebaseRemoteConfig.fetch(0L)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Fetch Succeeded", Toast.LENGTH_SHORT).show();
+                            mFirebaseRemoteConfig.activateFetched();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Fetch Failed",Toast.LENGTH_SHORT).show();
+                        }
+                        displayAds();
+                    }
+                });
+    }
+
+    private void displayAds(){
+        fullscreen = mFirebaseRemoteConfig.getBoolean("fullscreen");
+        msgTV.setText("fullscreen ad: " + fullscreen);
+        Log.i(TAG, "fetch: " + fullscreen);
+        Log.i(TAG, mFirebaseRemoteConfig.toString());
+
+        if (fullscreen == false) {
+            mAdView = (AdView) findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder()
+                    .build();
+            mAdView.loadAd(adRequest);
+        } else {
+            mInterstitialAd = new InterstitialAd(getApplicationContext());
+            mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    requestNewInterstitial();
+                }
+            });
+
+            requestNewInterstitial();
+        }
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        mInterstitialAd.loadAd(adRequest);
     }
 
     void createUser(String email, String password) {
@@ -135,10 +208,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
                         if (task.isSuccessful()) {
-                            msgTV.setText("a new user created");
+//                            msgTV.setText("a new user created");
                             Toast.makeText(MainActivity.this, "Authentication granted", Toast.LENGTH_SHORT).show();
                         } else {
-                            msgTV.setText("error in creating new user");
+//                            msgTV.setText("error in creating new user");
                             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                         hideProgressDialog();
@@ -156,10 +229,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
                         if (task.isSuccessful()) {
-                            msgTV.setText("logged in with email");
+//                            msgTV.setText("logged in with email");
                             Toast.makeText(MainActivity.this, "Authentication granted", Toast.LENGTH_SHORT).show();
                         } else {
-                            msgTV.setText("error in logging in with email");
+//                            msgTV.setText("error in logging in with email");
                             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                         hideProgressDialog();
@@ -187,11 +260,11 @@ public class MainActivity extends AppCompatActivity {
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            msgTV.setText(acct.getDisplayName() + " has logged in !");
+//            msgTV.setText(acct.getDisplayName() + " has logged in !");
             firebaseAuthWithGoogle(acct);
             loginSucuss();
         } else {
-            msgTV.setText("error in logging in with Google");
+//            msgTV.setText("error in logging in with Google");
             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
         }
         hideProgressDialog();

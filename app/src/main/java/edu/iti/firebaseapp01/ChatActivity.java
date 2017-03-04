@@ -209,8 +209,6 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
-
     public void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
