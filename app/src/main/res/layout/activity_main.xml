@@ -15,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:id="@+id/msgTV"
-        android:gravity="center" />
+        android:gravity="center"
+        android:visibility="invisible" />
 
     <EditText
         android:layout_width="match_parent"
@@ -69,39 +70,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/gmailBtn"
-            android:layout_weight="1" />
-
-        <Button
-            android:text="Signout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/signoutBtn"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/messageET"
-            android:layout_weight="1"
-            android:hint="Message"
-            android:layout_marginTop="20dp" />
-
-        <Button
-            android:text="tell firebase"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/sendBtn"
             android:layout_weight="1" />
 
     </LinearLayout>

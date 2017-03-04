@@ -6,6 +6,11 @@ public class Message {
     String msgTitle;
     String msgContent;
 
+    Message(String title, String msg){
+        this.msgTitle = title;
+        this.msgContent = msg;
+    }
+
     public String getMsgContent() {
         return msgContent;
     }

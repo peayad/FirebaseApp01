@@ -70,18 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
         msgTV = (TextView) findViewById(R.id.msgTV);
 
-        Button sendBtn = (Button) findViewById(R.id.sendBtn);
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendAction(v);
-            }
-        });
-
-
-
-
-
         signupBtn = (Button) findViewById(R.id.emailSignUpBtn);
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,17 +101,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // signout
-        Button signoutBtn = (Button) findViewById(R.id.signoutBtn);
-        signoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                recreate();
-            }
-        });
-
-
         // signin with google
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -148,17 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 googleSignIn();
             }
         });
-    }
-
-    public void sendAction(View v) {
-        Log.i(TAG, "button is clicked!");
-
-        EditText msgET = (EditText) findViewById(R.id.messageET);
-        String msg = msgET.getText().toString();
-
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, msg);
-        fb.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     void createUser(String email, String password) {
@@ -269,10 +235,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void loginSucuss() {
-//        signupBtn, loginBtn, googleLoginBtn;
-//        ((ViewGroup) signupBtn.getParent()).removeView(signupBtn);
-//        ((ViewGroup) loginBtn.getParent()).removeView(loginBtn);
-//        ((ViewGroup) googleLoginBtn.getParent()).removeView(googleLoginBtn);
         Intent intent = new Intent(this, ChatActivity.class);
         startActivity(intent);
         finish();

@@ -30,6 +30,9 @@ public class MyListAdapter extends ArrayAdapter<Message>{
         TextView tvTitle = (TextView) convertView.findViewById(R.id.msgTitleTV);
         TextView tvContent = (TextView) convertView.findViewById(R.id.msgContentTV);
 
+        tvTitle.setText(message.getMsgTitle());
+        tvContent.setText(message.getMsgContent());
+
         return convertView;
 
     }
