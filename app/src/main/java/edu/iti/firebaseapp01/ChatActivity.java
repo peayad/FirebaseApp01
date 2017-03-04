@@ -1,5 +1,7 @@
 package edu.iti.firebaseapp01;
 
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -41,7 +43,7 @@ import java.util.ArrayList;
 public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = "ptr";
-
+    public ProgressDialog mProgressDialog;
 
     FirebaseUser user;
     FirebaseDatabase fireDB;
@@ -76,7 +78,7 @@ public class ChatActivity extends AppCompatActivity {
                     return;
                 }
 
-                actionDownload(tempMsg.getMsgTitle());
+                actionDownload(tempMsg.getMsgLink());
             }
         });
 
@@ -163,11 +165,12 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
+        showProgressDialog();
         UploadTask uploadTask = storageReference.putStream(stream);
-
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                hideProgressDialog();
                 Log.i(TAG, "a5eran et3amla upload");
                 Toast.makeText(getApplicationContext(), "upload completed!", Toast.LENGTH_SHORT).show();
 
@@ -179,18 +182,49 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Log.i(TAG, "mafesh faida");
-                    Toast.makeText(getApplicationContext(), "failed to upload!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                hideProgressDialog();
+                Log.i(TAG, "mafesh faida");
+                Toast.makeText(getApplicationContext(), "failed to upload!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
-    private void actionDownload(String filepath){
-        String str = "this item has a file:\n" + filepath;
-        Log.i(TAG, str);
-        Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
+    private void actionDownload(String filepath) {
+        try {
+            StorageReference fileRef = FirebaseStorage.getInstance().getReferenceFromUrl(filepath);
+            showProgressDialog();
+            File localFile = File.createTempFile("images", "jpg");
+            fileRef.getFile(localFile).addOnSuccessListener(
+                    new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            hideProgressDialog();
+                            Toast.makeText(getApplicationContext(), "file has been downloaded!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage("Loading ...");
+            mProgressDialog.setIndeterminate(true);
+        }
+
+        mProgressDialog.show();
+    }
+
+    public void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
     }
 }

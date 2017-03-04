@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
     public void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("Loading ...");
+            mProgressDialog.setMessage("Working on it ...");
             mProgressDialog.setIndeterminate(true);
         }
 
