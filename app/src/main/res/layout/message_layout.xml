@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/msgTitleTV"
-        android:textSize="18sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:text="Message Content"

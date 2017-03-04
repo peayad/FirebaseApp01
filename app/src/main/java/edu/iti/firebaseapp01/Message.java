@@ -2,13 +2,14 @@ package edu.iti.firebaseapp01;
 
 public class Message {
 
-    String msgType;
+    String msgLink;
     String msgTitle;
     String msgContent;
 
-    Message(String title, String msg){
+    Message(String title, String msg, String link){
         this.msgTitle = title;
         this.msgContent = msg;
+        this.msgLink = link;
     }
 
     public String getMsgContent() {
@@ -27,11 +28,11 @@ public class Message {
         this.msgTitle = msgTitle;
     }
 
-    public String getMsgType() {
-        return msgType;
+    public String getMsgLink() {
+        return msgLink;
     }
 
-    public void setMsgType(String msgType) {
-        this.msgType = msgType;
+    public void setMsgLink(String msgLink) {
+        this.msgLink = msgLink;
     }
 }
